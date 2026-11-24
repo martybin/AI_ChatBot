@@ -1,5 +1,8 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from langchain_ollama import ChatOllama
-from langchain_core.messages import (SystemMessage, HumanMessage)
+from langchain.agents import create_agent
+from langchain_core.tools import tool
 
 llm = ChatOllama(
     model='mimo-v2.6:9b',
@@ -7,22 +10,39 @@ llm = ChatOllama(
     temperature=0.3
 )
 
-messages = [
-    SystemMessage(
-        content='''
-        You are a professional AI assistant in coding and programming.
-        You should implement what the user asks you to do in a professional manner.
-        '''
-        )
-]
+@tool
+def get_current_time() -> str:
+    """Get the current date and time in Tehran."""
+    now = datetime.now(ZoneInfo('Asia/Tehran'))
+    return now.strftime('%Y-%m-%d %H:%M:%S')
 
-while True:
-    user_input = input('What do you want to code? ').strip()
-    messages.append(HumanMessage(content=user_input))
-    response = llm.invoke(messages)
-    answer = response.content.replace('\n', ' ')
-    if messages[-1].content.lower() == 'exit':
-        break
+@tool
+def multiply(a: float, b: float) -> float:
+    """Multiply two numbers and return the result."""
+    return a * b
 
-    messages.append(answer)
-    print(f'Answer: {answer}')
+agent = create_agent(
+    model=llm,
+    tools=[get_current_time, multiply],
+    system_prompt="""
+    تو یک دستیار هوشمند فارسی زبان هستی.
+    برای دریافت تاریخ و ساعت فعلی از ابزار زمان استفاده کن.
+    برای محاسبه ضرب از ابزار multiply استفاده کن.
+    اطلاعات را از خودت اختراع نکن.
+    پاسخ نهایی را به زبان فارسی ارائه بده.
+    """
+)
+
+result = agent.invoke(
+    {
+        'messages': [
+            {
+                'role': 'user',
+                'content': 'سلام! لطفاً تاریخ و ساعت فعلی را به من بده و سپس حاصل ضرب ۱۲ در ۳ را محاسبه کن.'
+            }
+        ]
+    }
+)
+
+
+print(result['messages'][-1].content.replace('\n', ' '))
