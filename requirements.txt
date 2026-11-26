@@ -1,1 +1,5 @@
-    
+langchain>=1.0,<2.0
+langchain-ollama
+langgraph
+python-dotenv
+tzdata
