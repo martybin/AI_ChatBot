@@ -5,7 +5,7 @@ def main():
     user_id = "terminal_user"
     print("=" * 40)
     print("Personal AI Agent")
-    print("Type /exit to close the program")
+    print("Type exit to close the program")
     print("=" * 40)
 
     while True:
