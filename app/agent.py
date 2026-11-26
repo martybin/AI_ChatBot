@@ -1,5 +1,5 @@
 from langchain.agents import create_agent
-from langgraph.checkpoint import InMemorySaver
+from langgraph.checkpoint.memory import InMemorySaver
 from .llm import get_llm
 from .prompt import SYSTEM_PROMPT
 from .tools import TOOLS
